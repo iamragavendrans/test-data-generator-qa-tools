@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+        header { text-align: center; margin-bottom: 24px; }
+        header h1 { font-size: 2rem; color: #1a1a2e; margin-bottom: 6px; font-weight: 700; }
+        header p { color: #666; font-size: 0.95rem; }
+        
+        .types-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .types-scroll {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .type-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .type-btn:hover { background: #e9ecef; transform: translateY(-1px); }
+        .type-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .type-btn .icon { font-size: 1.2rem; }
+        
+        .config-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .config-section { grid-template-columns: 1fr; }
+        }
+        
+        .config-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .selected-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .selected-icon { font-size: 2.5rem; }
+        .selected-name { font-size: 1.3rem; font-weight: 600; color: #333; }
+        .selected-type { color: #888; font-size: 0.85rem; font-family: monospace; }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .config-item { display: flex; flex-direction: column; }
+        .config-item label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .config-item input[type="text"],
+        .config-item input[type="number"],
+        .config-item select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .config-item input:focus,
+        .config-item select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .checkbox-item:hover { background: #e9ecef; }
+        .checkbox-item input { width: 18px; height: 18px; cursor: pointer; }
+        .checkbox-item span { font-size: 0.85rem; }
+        
+        .radio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .radio-item:hover { background: #e9ecef; }
+        .radio-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .radio-item span { font-size: 0.85rem; }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+        }
+        .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .results-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            display: none;
+        }
+        .results-card.show { display: block; }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .results-message { font-size: 1rem; font-weight: 600; color: #333; }
+        .export-btns { display: flex; gap: 8px; }
+        .export-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .export-btn:hover { background: #e0e0e0; }
+        .results-list { max-height: 400px; overflow-y: auto; }
+        
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .result-item:hover { background: #e9ecef; }
+        .result-num { color: #aaa; font-size: 0.85rem; width: 28px; flex-shrink: 0; }
+        
+        .color-preview {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            flex-shrink: 0;
+        }
+        .result-value {
+            flex: 1;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        .result-logo { font-size: 1.2rem; margin-left: 8px; }
+        .copy-hint { color: #aaa; font-size: 0.75rem; min-width: 80px; text-align: right; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .empty-icon { font-size: 4rem; margin-bottom: 16px; }
+        .empty-title { font-size: 1.2rem; color: #555; margin-bottom: 8px; font-weight: 600; }
+        .empty-desc { font-size: 0.95rem; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Test Data Generator</h1>
+            <p>Select a type, customize options, and generate</p>
+        </header>
+        
+        <div class="types-bar">
+            <div class="types-scroll" id="typesScroll"></div>
+        </div>
+        
+        <div class="config-section">
+            <div>
+                <div class="config-card">
+                    <div class="selected-info">
+                        <span class="selected-icon" id="selectedIcon">🎲</span>
+                        <div>
+                            <div class="selected-name" id="selectedName">UUID</div>
+                            <div class="selected-type" id="selectedType">uuid</div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-grid" id="configGrid">
+                        <div class="config-item">
+                            <label>Count</label>
+                            <input type="number" id="count" value="5" min="1" max="1000">
+                        </div>
+                    </div>
+                    
+                    <button class="generate-btn" id="generateBtn">Generate</button>
+                </div>
+            </div>
+            
+            <div>
+                <div class="results-card" id="resultsCard">
+                    <div class="results-header">
+                        <span class="results-message" id="resultMessage"></span>
+                        <div class="export-btns">
+                            <button class="export-btn" id="copyAllBtn">Copy All</button>
+                            <button class="export-btn" id="jsonBtn">JSON</button>
+                            <button class="export-btn" id="csvBtn">CSV</button>
+                        </div>
+                    </div>
+                    <div class="results-list" id="resultsList"></div>
+                </div>
+                
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🎲</div>
+                    <div class="empty-title">Ready to Generate!</div>
+                    <div class="empty-desc">Select a data type and click generate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        var dataTypes = [];
+        var selectedType = 'uuid';
+        var results = [];
+        var configs = {};
+        
+        var selectedIcon = document.getElementById('selectedIcon');
+        var selectedName = document.getElementById('selectedName');
+        var selectedTypeEl = document.getElementById('selectedType');
+        var configGrid = document.getElementById('configGrid');
+        var generateBtn = document.getElementById('generateBtn');
+        var resultsCard = document.getElementById('resultsCard');
+        var resultMessage = document.getElementById('resultMessage');
+        var resultsList = document.getElementById('resultsList');
+        var emptyState = document.getElementById('emptyState');
+        var typesScroll = document.getElementById('typesScroll');
+        
+        function init() {
+            fetch('/api/types')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    dataTypes = data.types;
+                    dataTypes.forEach(function(t) {
+                        configs[t.type] = { count: 5 };
+                    });
+                    renderTypes();
+                    updateConfigUI();
+                })
+                .catch(function(e) { console.error('Failed to load types:', e); });
+        }
+        
+        function renderTypes() {
+            var html = '';
+            dataTypes.forEach(function(t) {
+                var isSelected = t.type === selectedType;
+                html += '<button class="type-btn ' + (isSelected ? 'selected' : '') + '" ';
+                html += 'onclick="selectType(\'' + t.type + '\')">';
+                html += '<span class="icon">' + t.icon + '</span>';
+                html += '<span>' + t.name + '</span>';
+                html += '</button>';
+            });
+            typesScroll.innerHTML = html;
+        }
+        
+        function selectType(type) {
+            selectedType = type;
+            renderTypes();
+            updateConfigUI();
+        }
+        
+        function createSearchSelect(key, values, defaultVal, label) {
+            var html = '<div class="config-item">';
+            html += '<label>' + label + '</label>';
+            html += '<div class="search-select">';
+            var displayVal = defaultVal;
+            for (var i = 0; i < values.length; i++) {
+                if (values[i][0] === defaultVal) {
+                    displayVal = values[i][1];
+                    break;
+                }
+            }
+            html += '<input type="text" id="' + key + '" value="' + displayVal + '" data-value="' + defaultVal + '" placeholder="Search...">';
+            html += '<div class="search-results" id="results_' + key + '">';
+            for (var j = 0; j < values.length; j++) {
+                html += '<div class="search-result-item" data-value="' + values[j][0] + '">' + values[j][1] + '</div>';
+            }
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            return html;
+        }
+        
+        function updateConfigUI() {
+            var t = null;
+            for (var i = 0; i < dataTypes.length; i++) {
+                if (dataTypes[i].type === selectedType) {
+                    t = dataTypes[i];
+                    break;
+                }
+            }
+            
+            if (t) {
+                selectedIcon.textContent = t.icon;
+                selectedName.textContent = t.name;
+                selectedTypeEl.textContent = t.type;
+            }
+            
+            var config = configs[selectedType];
+            var html = '';
+            
+            // Count always first
+            html += '<div class="config-item">';
+            html += '<label>Count</label>';
+            html += '<input type="number" id="count" value="' + (config.count || 5) + '" min="1" max="1000">';
+            html += '</div>';
+            
+            // Dynamic options
+            if (t && t.options) {
+                t.options.forEach(function(opt) {
+                    if (opt.type === 'checkbox') {
+                        html += '<div class="config-item" style="grid-column: 1/-1;">';
+                        html += '<label>' + opt.label + '</label>';
+                        html += '<div class="checkbox-grid">';
+                        opt.values.forEach(function(v) {
+                            var key = v[0];
+                            var label = v[1];
+                            var isChecked = opt.default === true || opt.default === key;
+                            html += '<label class="checkbox-item">';
+                            html += '<input type="checkbox" id="' + key + '"' + (isChecked ? ' checked' : '') + '>';
+                            html += '<span>' + label + '</span>';
+                            html += '</label>';
+                        });
+                        html += '</div></div>';
+                    } else if (opt.type === 'radio') {
+                        html += '<div class="config-item" style="grid-column: 1/-1;">';
+                        html += '<label>' + opt.label + '</label>';
+                        html += '<div class="radio-grid">';
+                        opt.values.forEach(function(v) {
+                            var key = v[0];
+                            var label = v[1];
+                            var isChecked = opt.default === key;
+                            html += '<label class="radio-item">';
+                            html += '<input type="radio" name="' + opt.key + '" id="' + key + '" value="' + key + '"' + (isChecked ? ' checked' : '') + '>';
+                            html += '<span>' + label + '</span>';
+                            html += '</label>';
+                        });
+                        html += '</div></div>';
+                    } else if (opt.type === 'select_search') {
+                        html += createSearchSelect(opt.key, opt.values, opt.default, opt.label);
+                    } else if (opt.type === 'number') {
+                        html += '<div class="config-item">';
+                        html += '<label>' + opt.label + '</label>';
+                        html += '<input type="number" id="' + opt.key + '" value="' + (opt.default || 16) + '" min="' + (opt.min || 1) + '" max="' + (opt.max || 1000) + '">';
+                        html += '</div>';
+                    } else {
+                        html += '<div class="config-item">';
+                        html += '<label>' + opt.label + '</label>';
+                        html += '<input type="text" id="' + opt.key + '" placeholder="' + (opt.placeholder || '') + '">';
+                        html += '</div>';
+                    }
+                });
+            }
+            
+            configGrid.innerHTML = html;
+            
+            // Attach event listeners
+            var countInput = document.getElementById('count');
+            if (countInput) {
+                countInput.addEventListener('input', function() {
+                    configs[selectedType].count = parseInt(countInput.value) || 1;
+                });
+            }
+            
+            // Search select listeners
+            document.querySelectorAll('.search-select input').forEach(function(input) {
+                input.addEventListener('focus', function() {
+                    this.nextElementSibling.classList.add('show');
+                });
+                input.addEventListener('input', function() {
+                    var val = this.value.toLowerCase();
+                    var resultsDiv = this.nextElementSibling;
+                    resultsDiv.querySelectorAll('.search-result-item').forEach(function(item) {
+                        item.style.display = item.textContent.toLowerCase().includes(val) ? 'block' : 'none';
+                    });
+                    resultsDiv.classList.add('show');
+                });
+                input.addEventListener('blur', function() {
+                    setTimeout(function() {
+                        input.nextElementSibling.classList.remove('show');
+                    }, 200);
+                });
+            });
+            
+            document.querySelectorAll('.search-result-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    var input = this.parentElement.previousElementSibling;
+                    input.value = this.textContent;
+                    input.dataset.value = this.dataset.value;
+                    configs[selectedType][input.id] = this.dataset.value;
+                    this.parentElement.classList.remove('show');
+                });
+            });
+            
+            // Other input listeners
+            if (t && t.options) {
+                t.options.forEach(function(opt) {
+                    var input = document.getElementById(opt.key);
+                    if (input && opt.type !== 'select_search') {
+                        input.addEventListener('input', function() {
+                            if (opt.type === 'checkbox') {
+                                configs[selectedType][opt.key] = input.checked;
+                            } else if (opt.type === 'radio') {
+                                configs[selectedType][opt.key] = input.value;
+                            } else if (opt.type === 'number') {
+                                configs[selectedType][opt.key] = parseInt(input.value) || opt.default;
+                            } else {
+                                configs[selectedType][opt.key] = input.value;
+                            }
+                        });
+                    }
+                });
+            }
+        }
+        
+        function generate() {
+            var config = configs[selectedType];
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            
+            var body = {
+                type: selectedType,
+                count: config.count || 5
+            };
+            
+            if (config) {
+                for (var key in config) {
+                    if (key !== 'count' && config[key] !== undefined && config[key] !== null && config[key] !== '') {
+                        body[key] = config[key];
+                    }
+                }
+            }
+            
+            fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                results = data.data;
+                resultMessage.textContent = data.message;
+                
+                var itemsHtml = '';
+                for (var i = 0; i < results.length; i++) {
+                    var value = results[i];
+                    var displayValue = value;
+                    var colorPreview = '';
+                    var extraInfo = '';
+                    
+                    if (selectedType === 'credit_card') {
+                        var logoMatch = value.match(/💳/);
+                        if (logoMatch) {
+                            extraInfo = '<span class="result-logo">' + logoMatch[0] + '</span>';
+                            displayValue = value.replace(/💳/, '').trim();
+                        }
+                    }
+                    
+                    if (selectedType === 'hex_color') {
+                        colorPreview = '<div class="color-preview" style="background-color:' + value + '"></div>';
+                    }
+                    else if (selectedType === 'rgb_color') {
+                        var rgbMatch = value.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                        if (rgbMatch) {
+                            var hex = '#' + 
+                                parseInt(rgbMatch[1]).toString(16).padStart(2, '0') +
+                                parseInt(rgbMatch[2]).toString(16).padStart(2, '0') +
+                                parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+                            colorPreview = '<div class="color-preview" style="background-color:' + hex + '"></div>';
+                            displayValue = hex;
+                        }
+                    }
+                    
+                    var escapedValue = value.replace(/'/g, "\\'");
+                    
+                    itemsHtml += '<div class="result-item" onclick="copyToClipboard(\'' + escapedValue + '\')">';
+                    itemsHtml += '<span class="result-num">' + (i + 1) + '</span>';
+                    itemsHtml += colorPreview;
+                    itemsHtml += '<span class="result-value">' + displayValue + '</span>';
+                    itemsHtml += extraInfo;
+                    itemsHtml += '<span class="copy-hint">Click to copy</span>';
+                    itemsHtml += '</div>';
+                }
+                resultsList.innerHTML = itemsHtml;
+                
+                emptyState.style.display = 'none';
+                resultsCard.classList.add('show');
+                
+                confetti({
+                    particleCount: 80,
+                    spread: 60,
+                    origin: { y: 0.6 },
+                    colors: ['#667eea', '#764ba2', '#f093fb']
+                });
+            })
+            .catch(function(e) { console.error('Generation failed:', e); })
+            .finally(function() {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate';
+            });
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                var items = resultsList.querySelectorAll('.result-item');
+                items.forEach(function(item) {
+                    var valEl = item.querySelector('.result-value');
+                    var checkValue = valEl ? valEl.textContent : '';
+                    if (checkValue === text || valEl.textContent === text) {
+                        item.querySelector('.copy-hint').textContent = 'Copied!';
+                        setTimeout(function() { item.querySelector('.copy-hint').textContent = 'Click to copy'; }, 1500);
+                    }
+                });
+            });
+        }
+        
+        function copyAll() {
+            navigator.clipboard.writeText(results.join('\n'));
+        }
+        
+        function exportJSON() {
+            var config = configs[selectedType];
+            var data = {
+                type: selectedType,
+                count: results.length,
+                generated_at: new Date().toISOString(),
+                data: results
+            };
+            download(JSON.stringify(data, null, 2), 'test-data.json', 'application/json');
+        }
+        
+        function exportCSV() {
+            download(results.join('\n'), 'test-data.csv', 'text/csv');
+        }
+        
+        function download(content, filename, type) {
+            var blob = new Blob([content], { type: type });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        generateBtn.addEventListener('click', generate);
+        document.getElementById('copyAllBtn').addEventListener('click', copyAll);
+        document.getElementById('jsonBtn').addEventListener('click', exportJSON);
+        document.getElementById('csvBtn').addEventListener('click', exportCSV);
+        
+        init();
+    </script>
+</body>
+</html>
