@@ -1,8 +1,0 @@
-{
-  "name": "test-data-generator",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "start": "bun server.js"
-  }
-}
