@@ -33,6 +33,44 @@ class GenerateRequest(BaseModel):
     count: int = 5
     prefix: Optional[str] = None
     suffix: Optional[str] = None
+    # Allow additional configuration options
+    uppercase: Optional[bool] = None
+    lowercase: Optional[bool] = None
+    numbers: Optional[bool] = None
+    special: Optional[bool] = None
+    length: Optional[int] = None
+    style: Optional[str] = None
+    brand: Optional[str] = None
+    valid_checksum: Optional[bool] = None
+    starts_with: Optional[str] = None
+    ends_with: Optional[str] = None
+    domain: Optional[str] = None
+    extension: Optional[str] = None
+    country: Optional[str] = None
+    include_code: Optional[bool] = None
+    country_specific: Optional[bool] = None
+    country_rules: Optional[bool] = None
+    zip_from: Optional[int] = None
+    zip_to: Optional[int] = None
+    card_type: Optional[str] = None
+    valid: Optional[str] = None
+    numeric_only: Optional[bool] = None
+    format: Optional[str] = None
+    version: Optional[str] = None
+    protocol: Optional[str] = None
+    include_date: Optional[bool] = None
+    include_time: Optional[bool] = None
+    include_timezone: Optional[bool] = None
+    grammatically_valid: Optional[bool] = None
+    min_sentences: Optional[int] = None
+    max_sentences: Optional[int] = None
+    min_value: Optional[int] = None
+    max_value: Optional[int] = None
+    seniority: Optional[str] = None
+    separator: Optional[str] = None
+    # Include extra fields for flexibility
+    class Config:
+        extra = "allow"
 
 # Countries for phone/address
 COUNTRIES = {
@@ -175,10 +213,7 @@ CATEGORIES = [
 # Data types configuration with category mapping
 DATA_TYPES = [
     # Identifiers & Security
-    {"type": "uuid", "name": "UUID", "icon": "🎲", "category": "identifiers_security", "supports_prefix_suffix": True, "options": [
-        {"key": "prefix", "label": "Prefix", "type": "text", "placeholder": "e.g., ID_"},
-        {"key": "suffix", "label": "Suffix", "type": "text", "placeholder": "e.g., _test"}
-    ]},
+    {"type": "uuid", "name": "UUID", "icon": "🎲", "category": "identifiers_security", "supports_prefix_suffix": True, "options": []},
     {"type": "password", "name": "Password", "icon": "🔐", "category": "identifiers_security", "supports_prefix_suffix": False, "options": [
         {"key": "uppercase", "label": "Uppercase (A-Z)", "type": "checkbox", "default": True},
         {"key": "lowercase", "label": "Lowercase (a-z)", "type": "checkbox", "default": True},
@@ -194,7 +229,7 @@ DATA_TYPES = [
         {"key": "brand", "label": "Manufacturer", "type": "select", "values": [("Apple", "Apple"), ("Samsung", "Samsung"), ("Xiaomi", "Xiaomi"), ("Generic", "Generic")], "default": "Generic"},
         {"key": "valid_checksum", "label": "Valid checksum only", "type": "checkbox", "default": True}
     ]},
-    {"type": "mac_address", "name": "MAC Address", "icon": "🔌", "category": "identifiers_security", "supports_prefix_suffix": True, "options": [
+    {"type": "mac_address", "name": "MAC Address", "icon": "🔌", "category": "identifiers_security", "supports_prefix_suffix": False, "options": [
         {"key": "uppercase", "label": "Uppercase", "type": "checkbox", "default": True},
         {"key": "separator", "label": "Separator", "type": "radio", "values": [(":", ":"), ("-", "-")], "default": ":"}
     ]},
@@ -219,14 +254,12 @@ DATA_TYPES = [
         {"key": "starts_with", "label": "Starts with", "type": "text", "placeholder": "e.g., U"}
     ]},
     {"type": "city", "name": "City", "icon": "🏙️", "category": "contact_identity", "supports_prefix_suffix": False, "options": [
-        {"key": "starts_with", "label": "Starts with", "type": "text", "placeholder": "e.g., N"},
-        {"key": "country_specific", "label": "Country-specific cities", "type": "checkbox", "default": False}
+        {"key": "country", "label": "Country", "type": "select", "values": [[k, v['name']] for k, v in COUNTRIES.items()], "default": None}
     ]},
     {"type": "zipcode", "name": "ZIP Code", "icon": "📮", "category": "contact_identity", "supports_prefix_suffix": False, "options": [
-        {"key": "country_rules", "label": "Use country rules", "type": "checkbox", "default": True},
+        {"key": "country", "label": "Country", "type": "select", "values": [[k, v['name']] for k, v in COUNTRIES.items()], "default": "US"},
         {"key": "from", "label": "From", "type": "number", "default": 10000},
-        {"key": "to", "label": "To", "type": "number", "default": 99999},
-        {"key": "length", "label": "Length", "type": "number", "default": 5, "min": 3, "max": 10}
+        {"key": "to", "label": "To", "type": "number", "default": 99999}
     ]},
     
     # Financial & Sensitive
@@ -237,16 +270,16 @@ DATA_TYPES = [
     {"type": "ssn", "name": "SSN", "icon": "🔢", "category": "financial_sensitive", "supports_prefix_suffix": False, "options": [
         {"key": "country", "label": "Country", "type": "select", "values": [("US", "US"), ("UK", "UK"), ("Random", "Random")], "default": "US"}
     ]},
-    {"type": "barcode", "name": "Barcode", "icon": "📊", "category": "financial_sensitive", "supports_prefix_suffix": True, "options": [
+    {"type": "barcode", "name": "Barcode", "icon": "📊", "category": "financial_sensitive", "supports_prefix_suffix": False, "options": [
         {"key": "numeric_only", "label": "Numeric only", "type": "checkbox", "default": True},
         {"key": "length", "label": "Length", "type": "number", "default": 13, "min": 8, "max": 20}
     ]},
-    {"type": "isbn", "name": "ISBN", "icon": "📚", "category": "financial_sensitive", "supports_prefix_suffix": True, "options": [
+    {"type": "isbn", "name": "ISBN", "icon": "📚", "category": "financial_sensitive", "supports_prefix_suffix": False, "options": [
         {"key": "format", "label": "Format", "type": "radio", "values": [("isbn10", "ISBN-10"), ("isbn13", "ISBN-13")], "default": "isbn13"}
     ]},
     
     # Network & Web
-    {"type": "ip", "name": "IP Address", "icon": "🌐", "category": "network_web", "supports_prefix_suffix": True, "options": [
+    {"type": "ip", "name": "IP Address", "icon": "🌐", "category": "network_web", "supports_prefix_suffix": False, "options": [
         {"key": "version", "label": "IP Version", "type": "radio", "values": [("ipv4", "IPv4"), ("ipv6", "IPv6")], "default": "ipv4"}
     ]},
     {"type": "url", "name": "URL", "icon": "🔗", "category": "network_web", "supports_prefix_suffix": False, "options": [
@@ -339,10 +372,33 @@ async def generate_data(request: GenerateRequest):
     request_dict = request.model_dump()
     options = {k: v for k, v in request_dict.items() if k not in ["type", "count", "prefix", "suffix"] and v is not None}
     
+    # For username, check if prefix option is sent separately
+    if request.type == "username" and request.prefix:
+        options["prefix"] = request.prefix
+    
+    # Limit prefix/suffix lengths for UUID
+    prefix = request.prefix
+    suffix = request.suffix
+    if prefix and len(prefix) > 8:
+        prefix = prefix[:8]
+    if suffix and len(suffix) > 12:
+        suffix = suffix[:12]
+    
     for _ in range(request.count):
         value = generate_by_type(request.type, options)
-        if prefix or suffix:
-            value = apply_prefix_suffix(value, prefix, suffix)
+        # Apply prefix/suffix by replacing parts of UUID (standard format)
+        if request.type == "uuid":
+            # Standard UUID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+            # Remove all hyphens for processing
+            hex_uuid = value.replace('-', '')
+            # Replace first 8 hex chars with prefix
+            if prefix:
+                hex_uuid = prefix + hex_uuid[8:]
+            # Replace last 12 hex chars with suffix
+            if suffix:
+                hex_uuid = hex_uuid[:-12] + suffix
+            # Reconstruct standard UUID format: 8-4-4-4-12
+            value = f"{hex_uuid[:8]}-{hex_uuid[8:12]}-{hex_uuid[12:16]}-{hex_uuid[16:20]}-{hex_uuid[20:]}"
         results.append(value)
     
     return {
@@ -402,16 +458,12 @@ def generate_by_type(type_id: str, options: dict) -> str:
     elif type_id == "country":
         return generate_country(starts_with=options.get("starts_with"))
     elif type_id == "city":
-        return generate_city(
-            starts_with=options.get("starts_with"),
-            country_specific=options.get("country_specific", False)
-        )
+        return generate_city(country=options.get("country"))
     elif type_id == "zipcode":
         return generate_zipcode(
-            country_rules=options.get("country_rules", True),
+            country=options.get("country"),
             zip_from=options.get("from", 10000),
-            zip_to=options.get("to", 99999),
-            length=options.get("length", 5)
+            zip_to=options.get("to", 99999)
         )
     elif type_id == "credit_card":
         return generate_credit_card(
@@ -499,51 +551,162 @@ def generate_phone(country="US", include_code=True):
 def generate_email(domain=None, extension=None):
     names = ["alex", "sam", "jordan", "taylor", "morgan", "riley", "jamie", "quinn", "casey", "dakota", "avery", "skyler"]
     
+    # Ensure extension has a dot prefix
+    if extension and not extension.startswith('.'):
+        extension = '.' + extension
+    
     if domain and extension:
-        return f"{random.choice(names).lower()}{random.randint(1, 999)}@{domain}.{extension}"
+        return f"{random.choice(names).lower()}{random.randint(1, 999)}@{domain}{extension}"
     elif domain:
+        # If no explicit extension but domain is provided, use domain as-is (no TLD)
         return f"{random.choice(names).lower()}{random.randint(1, 999)}@{domain}"
     elif extension:
-        return f"{random.choice(names).lower()}{random.randint(1, 999)}@{random.choice(['gmail.com', 'yahoo.com', 'outlook.com'])}"
+        return f"{random.choice(names).lower()}{random.randint(1, 999)}@example{extension}"
     else:
         return f"{random.choice(names).lower()}{random.randint(1, 999)}@{random.choice(['gmail.com', 'yahoo.com', 'outlook.com'])}"
 
 def generate_address(country="US"):
+    # Street numbers and streets
+    street_num = random.randint(1, 9999)
+    
+    # Country-specific addresses
     if country == "US":
-        return f"{random.randint(100, 9999)} {random.choice(US_STREETS)}, {random.choice(CITIES[:20])}, {random.choice(['CA', 'NY', 'TX', 'FL', 'IL'])} {random.randint(10000, 99999)}"
+        streets = ["Main St", "Oak Ave", "Park Blvd", "First St", "Elm St", "Maple Dr", "Cedar Ln", "Pine St", "Washington St", "Lake Dr"]
+        cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"]
+        states = ["CA", "NY", "TX", "FL", "IL", "PA", "OH", "GA", "NC", "MI"]
+        zip_code = random.randint(10000, 99999)
+        return f"{street_num} {random.choice(streets)}, {random.choice(cities)}, {random.choice(states)} {zip_code}"
+    
     elif country == "UK":
-        return f"{random.randint(1, 200)} {random.choice(UK_STREETS)}, {random.choice(['London', 'Manchester', 'Birmingham'])}, {random.choice(['SW1A', 'EC1A', 'W1A'])}"
+        streets = ["High Street", "Station Road", "London Road", "Victoria Road", "Church Lane", "Manor Road", "Park Road", "Queens Road"]
+        cities = ["London", "Manchester", "Birmingham", "Edinburgh", "Glasgow", "Liverpool", "Bristol", "Leeds"]
+        postcodes = ["SW1A", "EC1A", "W1A", "M1", "B1", "EH1", "G1", "L1", "BS1", "LS1"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.choice(postcodes)}"
+    
+    elif country == "DE":
+        streets = ["Hauptstraße", "Bahnhofstraße", "Schulstraße", "Gartenstraße", "Dorfstraße", "Bergstraße", "Waldstraße", "Kirchstraße"]
+        cities = ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne", "Stuttgart", "Düsseldorf", "Dortmund"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(10000, 99999)}"
+    
+    elif country == "FR":
+        streets = ["Rue de la Paix", "Avenue des Champs-Élysées", "Boulevard Saint-Michel", "Rue Victor Hugo", "Rue du Commerce"]
+        cities = ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Nantes", "Strasbourg", "Bordeaux"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(10000, 99999)}"
+    
+    elif country == "IN":
+        streets = ["MG Road", "Ring Road", "Main Market", "Sector Road", "College Road", "Station Road"]
+        cities = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Ahmedabad"]
+        pincode = random.randint(100000, 999999)
+        return f"{random.randint(1, 999)} {random.choice(streets)}, {random.choice(cities)} - {pincode}"
+    
+    elif country == "AU":
+        streets = ["George St", "Queen St", "King St", "Elizabeth St", "Bourke St", "Collins St"]
+        cities = ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Canberra", "Hobart", "Darwin"]
+        postcode = random.randint(1000, 9999)
+        return f"{random.randint(1, 999)} {random.choice(streets)}, {random.choice(cities)} {postcode}"
+    
+    elif country == "CA":
+        streets = ["Yonge St", "Queen St", "King St", "Dundas St", "Bloor St", "Huntington Ave"]
+        cities = ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton", "Winnipeg", "Halifax"]
+        postal = f"{random.choice(['M','V','H','K','L','N'])}{random.randint(1, 9)}{random.choice(['A','B','C','D','E','F','G','H','J','K','L','M','N','P','R','S','T','V','W','X','Y'])}{random.randint(1, 9)}{random.choice(['A','B','C','D','E','F','G','H','J','K','L','M','N','P','R','S','T','V','W','X','Y'])}{random.randint(1, 9)}"
+        return f"{random.randint(1, 999)} {random.choice(streets)}, {random.choice(cities)}, {postal}"
+    
+    elif country == "JP":
+        streets = ["Main Street", "Cherry Blossom Ave", "Central Blvd", "Garden Road", "Temple Street"]
+        cities = ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Nagoya", "Sapporo", "Fukuoka", "Kobe"]
+        return f"{random.randint(1, 999)}-{random.randint(1, 99)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(100, 999)}"
+    
+    elif country == "BR":
+        streets = ["Avenida Paulista", "Rua das Flores", "Avenida Brasil", "Rua 25 de Março", "Avenida Copacabana"]
+        cities = ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza", "Belo Horizonte", "Manaus", "Curitiba"]
+        cep = f"{random.randint(10000, 99999)}-{random.randint(100, 999)}"
+        return f"{random.randint(1, 9999)} {random.choice(streets)}, {random.choice(cities)} - {cep}"
+    
+    elif country == "IT":
+        streets = ["Via Roma", "Corso Italia", "Via Garibaldi", "Piazza del Duomo", "Via del Corso"]
+        cities = ["Rome", "Milan", "Naples", "Turin", "Florence", "Venice", "Bologna", "Genoa"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(10000, 99999)}"
+    
+    elif country == "ES":
+        streets = ["Gran Vía", "Paseo de la Castellana", "Avenida de la Constitución", "Calle Mayor", "Rambla de Barcelona"]
+        cities = ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Málaga", "Murcia", "Palma"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(10000, 52999)}"
+    
+    elif country == "MX":
+        streets = ["Paseo de la Reforma", "Avenida Insurgentes", "Calle Madero", "Avenida Chapultepec", "Gran Avenida"]
+        cities = ["Mexico City", "Guadalajara", "Monterrey", "Cancún", "Puebla", "Tijuana", "Córdoba", "Veracruz"]
+        cp = random.randint(10000, 99999)
+        return f"{random.randint(1, 9999)} {random.choice(streets)}, {random.choice(cities)}, CP {cp}"
+    
+    elif country == "CN":
+        streets = ["Nanjing Road", "Beijing Road", "Shanghai Street", "Guangzhou Avenue", "Shenzhen Boulevard"]
+        cities = ["Beijing", "Shanghai", "Guangzhou", "Shenzhen", "Chengdu", "Hangzhou", "Wuhan", "Nanjing"]
+        return f"{random.randint(1, 999)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(100000, 999999)}"
+    
+    elif country == "RU":
+        streets = ["Tverskaya Street", "Arbat Street", "Nevsky Prospect", "Lenin Street", "Gorky Street"]
+        cities = ["Moscow", "Saint Petersburg", "Novosibirsk", "Yekaterinburg", "Nizhny Novgorod", "Kazan", "Chelyabinsk", "Omsk"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(100000, 999999)}"
+    
+    elif country == "NL":
+        streets = ["Damrak", "Kalverstraat", "Rokin", "Leidsestraat", "PC Hooftstraat"]
+        cities = ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven", "Groningen", "Tilburg", "Almere"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(1000, 9999)}"
+    
+    elif country == "SE":
+        streets = ["Drottninggatan", "Sveavägen", "Göta Boulevard", "Kungsgatan", "Storgatan"]
+        cities = ["Stockholm", "Gothenburg", "Malmö", "Uppsala", "Västerås", "Örebro", "Linköping", "Helsingborg"]
+        return f"{random.randint(1, 200)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(11111, 99999)}"
+    
+    elif country == "SG":
+        streets = ["Orchard Road", "Marina Bay", "Bugis Street", "Clarke Quay", "Havelock Road"]
+        return f"{random.randint(1, 999)} {random.choice(streets)}, Singapore {random.randint(100000, 999999)}"
+    
+    elif country == "AE":
+        streets = ["Sheikh Zayed Road", "Al Diyafah Street", "Jumeirah Beach Road", "Deira Corniche", "Business Bay"]
+        cities = ["Dubai", "Abu Dhabi", "Sharjah", "Al Ain", "Ajman", "Ras Al Khaimah"]
+        return f"{random.randint(1, 999)} {random.choice(streets)}, {random.choice(cities)}"
+    
+    elif country == "ZA":
+        streets = ["Sandton City", "Oxford Street", "Main Road", "Long Street", "Kloof Street"]
+        cities = ["Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth", "Bloemfontein"]
+        return f"{random.randint(1, 999)} {random.choice(streets)}, {random.choice(cities)}, {random.randint(1000, 9999)}"
+    
     else:
-        return f"{random.randint(100, 9999)} {random.choice(US_STREETS)}, {random.choice(CITIES[:10])} {random.randint(10000, 99999)}"
+        # Default US-style address for unspecified countries
+        return f"{street_num} {random.choice(US_STREETS)}, {random.choice(CITIES[:10])}, {random.randint(10000, 99999)}"
 
 def generate_name(starts_with=None, ends_with=None):
     first_names = ["James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda", "David", "Elizabeth", "William", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah", "Charles", "Karen", "Emma", "Olivia", "Ava", "Isabella", "Sophia", "Mia", "Charlotte", "Amelia", "Harper", "Evelyn", "Liam", "Noah", "Oliver", "Elijah"]
     last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"]
     
+    candidates = []
+    
+    # Check starts_with
     if starts_with:
         starts_with = starts_with.strip().upper()
-        candidates = []
         for f in first_names:
             if f.upper().startswith(starts_with):
                 candidates.append(f"{f} {random.choice(last_names)}")
         for l in last_names:
             if l.upper().startswith(starts_with):
                 candidates.append(f"{random.choice(first_names)} {l}")
-        if candidates:
-            return random.choice(candidates)
     
+    # Check ends_with
     if ends_with:
         ends_with = ends_with.strip().upper()
-        candidates = []
         for f in first_names:
             if f.upper().endswith(ends_with):
                 candidates.append(f"{f} {random.choice(last_names)}")
         for l in last_names:
             if l.upper().endswith(ends_with):
                 candidates.append(f"{random.choice(first_names)} {l}")
-        if candidates:
-            return random.choice(candidates)
     
+    # Return from candidates if any found
+    if candidates:
+        return random.choice(candidates)
+    
+    # Otherwise return random name
     return f"{random.choice(first_names)} {random.choice(last_names)}"
 
 def generate_imei(brand="Generic", valid_checksum=True):
@@ -622,12 +785,13 @@ def generate_isbn(format="isbn13"):
         total = sum((10 - i) * int(d) for i, d in enumerate(digits))
         check = (11 - (total % 11)) % 11
         check_char = 'X' if check == 10 else str(check)
-        return f"{digits[:3]}-{digits[3:4]}-{digits[4:8]}-{digits[8:9]}-{check_char}"
+        return f"{digits[:1]}-{digits[1:6]}-{digits[6:10]}-{check_char}"
     else:
-        prefix = "978" + "".join([str(random.randint(0, 9)) for _ in range(7)])
+        # ISBN-13: 12 digits + check digit = 13 total
+        prefix = "978" + "".join([str(random.randint(0, 9)) for _ in range(9)])
         total = sum((3 if i % 2 else 1) * int(d) for i, d in enumerate(prefix))
         check = (10 - (total % 10)) % 10
-        return f"{prefix[:3]}-{prefix[3:4]}-{prefix[4:7]}-{prefix[7:9]}-{prefix[9:]}{check}"
+        return f"{prefix[:3]}-{prefix[3:5]}-{prefix[5:10]}-{prefix[10:12]}-{prefix[12:]}{check}"
 
 def generate_ip(version="ipv4"):
     if version == "ipv6":
@@ -649,16 +813,25 @@ def generate_datetime(include_date=True, include_time=True, include_timezone=Fal
     hour = random.randint(0, 23)
     minute = random.randint(0, 59)
     second = random.randint(0, 59)
+    millisecond = random.randint(0, 999)
     
-    parts = []
-    if include_date:
-        parts.append(f"{day:02d}/{month:02d}/{year}")
-    if include_time:
-        parts.append(f"{hour:02d}:{minute:02d}:{second:02d}")
-    if include_timezone:
-        parts.append("Z")
+    # ISO 8601 format: YYYY-MM-DDThh:mm:ss.sssZ
+    date_str = f"{year:04d}-{month:02d}-{day:02d}"
+    time_str = f"{hour:02d}:{minute:02d}:{second:02d}.{millisecond:03d}"
     
-    return " ".join(parts)
+    if include_date and include_time:
+        result = f"{date_str}T{time_str}"
+    elif include_date:
+        result = date_str
+    elif include_time:
+        result = time_str
+    else:
+        result = ""
+    
+    if include_timezone and result:
+        result += "Z"
+    
+    return result
 
 def generate_sentence(grammatically_valid=True):
     if grammatically_valid:
@@ -735,23 +908,76 @@ def generate_username(prefix=None, style="name_year"):
     return (prefix or "") + result
 
 def generate_country(starts_with=None):
+    """Generate country - unique names"""
     if starts_with:
         starts_with = starts_with.strip().upper()
-        candidates = [c for c in COUNTRIES_LIST if c.upper().startswith(starts_with)]
+        candidates = list(set([c for c in COUNTRIES_LIST if c.upper().startswith(starts_with)]))
         if candidates:
             return random.choice(candidates)
+    # Return unique country from full list
     return random.choice(COUNTRIES_LIST)
 
-def generate_city(starts_with=None, country_specific=False):
-    if starts_with:
-        starts_with = starts_with.strip().upper()
-        candidates = [c for c in CITIES if c.upper().startswith(starts_with)]
-        if candidates:
-            return random.choice(candidates)
-    return random.choice(CITIES)
+def generate_city(country=None):
+    """Generate city based on country selection"""
+    cities_by_country = {
+        "US": ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Boston"],
+        "UK": ["London", "Manchester", "Birmingham", "Edinburgh", "Glasgow", "Liverpool", "Bristol", "Leeds", "Sheffield", "Newcastle", "Nottingham", "Southampton", "Brighton", "Oxford", "Cambridge", "York", "Cardiff", "Belfast", "Bournemouth", "Leicester"],
+        "DE": ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne", "Stuttgart", "Düsseldorf", "Dortmund", "Leipzig", "Essen", "Dresden", "Hanover", "Nuremberg", "Duisburg", "Bochum", "Wuppertal", "Bielefeld", "Bonn", "Mannheim", "Karlsruhe"],
+        "FR": ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Nantes", "Strasbourg", "Bordeaux", "Lille", "Rennes", "Reims", "Le Havre", "Saint-Étienne", "Toulon", "Grenoble", "Dijon", "Angers", "Nîmes", "Villeurbanne", "Clermont-Ferrand"],
+        "IN": ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Ahmedabad", "Surat", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Pimpri", "Kalyan", "Meerut"],
+        "AU": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Canberra", "Hobart", "Darwin", "Newcastle", "Geelong", "Townsville", "Cairns", "Toowoomba", "Ballarat", "Bendigo", "Launceston", "Mackay", "Rockhampton", "Sunshine Coast", "Gold Coast"],
+        "CA": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton", "Winnipeg", "Halifax", "Victoria", "Brampton", "Kitchener", "London", "Oshawa", "Barrie", "Sherbrooke", "Guelph", "Moncton", "Kelowna", "Sudbury", "Trois-Rivières"],
+        "JP": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Nagoya", "Sapporo", "Fukuoka", "Kobe", "Kawasaki", "Saitama", "Hiroshima", "Sendai", "Chiba", "Sakai", "Niigata", "Hamamatsu", "Hachioji", "Higashihiroshima", "Okayama", "Kagoshima"],
+        "BR": ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza", "Belo Horizonte", "Manaus", "Curitiba", "Recife", "Porto Alegre", "Belém", "Goiânia", "Guarulhos", "Campinas", "São Luís", "São Gonçalo", "Maceió", "Duque de Caxias", "Natal", "Teresina"],
+        "IT": ["Rome", "Milan", "Naples", "Turin", "Florence", "Venice", "Bologna", "Genoa", "Bari", "Palermo", "Verona", "Catania", "Syracuse", "Padua", "Taranto", "Brescia", "Prato", "Reggio Calabria", "Modena", "Cagliari"],
+        "ES": ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Málaga", "Murcia", "Palma", "Las Palmas", "Zaragoza", "Alicante", "Córdoba", "Valladolid", "Vigo", "Gijón", "Hospitalet", "Vitoria", "Elche", "Terrassa", "Oviedo"],
+        "MX": ["Mexico City", "Guadalajara", "Monterrey", "Cancún", "Puebla", "Tijuana", "Ciudad Juárez", "Torreón", "Toluca", "Chihuahua", "Durango", "Saltillo", "Acapulco", "Morelia", "Veracruz", "Tampico", "Tulum", "Oaxaca", "Guadalupe", "Mazatlán"],
+        "CN": ["Beijing", "Shanghai", "Guangzhou", "Shenzhen", "Chengdu", "Hangzhou", "Wuhan", "Nanjing", "Xi'an", "Chongqing", "Suzhou", "Tianjin", "Kunming", "Qingdao", "Dalian", "Harbin", "Jinan", "Shenyang", "Changchun", "Ningbo"],
+        "NL": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven", "Groningen", "Tilburg", "Almere", "Breda", "Nijmegen", "Enschede", "Haarlem", "Arnhem", "Maastricht", "Zaanstad", "Zwolle", "Leeuwarden", "Leiden", "Delft", "Alkmaar"],
+        "SG": ["Singapore"],
+        "AE": ["Dubai", "Abu Dhabi", "Sharjah", "Al Ain", "Ajman", "Ras Al Khaimah", "Fujairah", "Umm Al Quwain", "Khor Fakkan", "Jebel Ali"],
+        "ZA": ["Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth", "Bloemfontein", "East London", "Polokwane", "Pietermaritzburg", "Nelspruit", "Kimberley", "George", "Middelburg", "Rustenburg", "Worcester", "Standerton", "Bethlehem", "Mmabatho", "Klerksdorp", "Mossel Bay"],
+        "MA": ["Casablanca", "Rabat", "Marrakech", "Fes", "Tangier", "Agadir", "Meknes", "Oujda", "Kenitra", "Tetouan", "Safi", "El Jadid", "Nador", "Beni Mellal", "Errachidia", "Taza", "Ksar El Kebir", "Guercif", "Tiflet", "Ouarzazate"],
+        "PE": ["Lima", "Arequipa", "Cusco", "Trujillo", "Chiclayo", "Iquitos", "Piura", "Tacna", "Pucallpa", "Sullana", ""],  # Peru cities
+        "AR": ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "La Plata", "Tucumán", "Mar del Plata", "Salta", "Santa Fe", "Corrientes", "Bahía Blanca", "Posadas", "San Juan", "Resistencia", "Neuquén", "Venado Tuerto", "Villa Lugano", "San Miguel de Tucumán", "Pilar", ""],
+        "CL": ["Santiago", "Valparaíso", "Concepción", "La Serena", "Antofagasta", "Viña del Mar", "Rancagua", "Temuco", "Puerto Montt", "La Reina", ""],
+        "CO": ["Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Cúcuta", "Soacha", "Soledad", "Bucaramanga", "Pereira", "Santa Marta", "Ibagué", "Pasto", "Manizales", "Neiva", "Armenia", "Villavicencio", "Popayán", "Sincelejo", "Tunja"],
+        "TH": ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Krabi", "Hua Hin", "Ayutthaya", "Khon Kaen", "Surat Thani", "Chonburi", "Nonthaburi", "Nakhon Ratchasima", "Udon Thani", "Sakhon Nakhon", "Phitsanulok", "Lampang", "Ubon Ratchathani", "Samut Prakan", "Ratchaburi", "Suphan Buri"],
+        "VN": ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hai Phong", "Can Tho", "Bien Hoa", "Hue", "Thu Dau Mot", "Nha Trang", "Bac Ninh", "Ha Long", "Vung Tau", "Da Lat", "Quy Nhon", "Rach Gia", "Long Xuyen", "Thanh Hoa", "Thai Nguyen", "Yen Bai", "Cau River"],
+        "PH": ["Manila", "Quezon City", "Cebu City", "Davao City", "Makati", "Taguig", "Pasig", "Caloocan", "Bacoor", "Cavite City", "Iloilo City", "Bohol", "Zamboanga City", "Lapu-Lapu City", "Mandaluyong", "Malabon", "San Jose del Monte", "Batangas City", "Legazpi", "Puerto Princesa"],
+        "ID": ["Jakarta", "Surabaya", "Bandung", "Medan", "Semarang", "Tangerang", "Depok", "Palembang", "Makassar", "Bogor", "Bandar Lampung", "Padang", "Denpasar", "Samarinda", "Banjarmasin", "Malang", "Pontianak", "Yogyakarta", "Cirebon", "Bekasi"],
+        "MY": ["Kuala Lumpur", "George Town", "Johor Bahru", "Ipoh", "Shah Alam", "Petaling Jaya", "Kota Kinabalu", "Kuching", "Melaka", "Seremban", "Alor Setar", "Kuantan", "Kuala Terengganu", "Sibu", "Miri", "Sungai Petani", "Batu Pahat", "Kluang", "Tawau", "Sandakan"],
+        "NZ": ["Auckland", "Wellington", "Christchurch", "Hamilton", "Tauranga", "Napier-Hastings", "Palmerston North", "Rotorua", "New Plymouth", "Whangarei", "Dunedin", "Invercargill", "Nelson", "Hastings", "Upper Hutt", "Gisborne", "Timaru", "Blenheim", "Papakura", "Porirua"],
+        "EG": ["Cairo", "Alexandria", "Giza", "Luxor", "Aswan", "Mansoura", "Port Said", "Suez", "Tanta", "Zagazig", "Ismailia", "Faiyum", "Zagazig", "Sohag", "Qena", "Beni Suef", "Hurghada", "Marsa Alam", "Sharm El Sheikh", "Damanhur"],
+        "NG": ["Lagos", "Abuja", "Ibadan", "Kano", "Port Harcourt", "Benin City", "Maiduguri", "Zaria", "Aba", "Jos", "Ilorin", "Owerri", "Yenagoa", "Enugu", "Abuja", "Lagos Island", "Ikeja", "Surulere", "Victoria Island", "Ikoyi"],
+        "KE": ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret", "Thika", "Malindi", "Kitale", "Garissa", "Kapenguria", "Nyali", "Kisii", "Nyeri", "Meru", "Embu", "Naivasha", "Kericho", "Kakamega", "Migori", "Bungoma"],
+        "GR": ["Athens", "Thessaloniki", "Patras", "Heraklion", "Larissa", "Volos", "Ioannina", "Chania", "Kalamata", "Alexandroupoli", "Kavala", "Lamia", "Drama", "Trikala", "Serres", "Chios", "Rodos", "Kos", "Corfu", "Santorini"],
+        "TR": ["Istanbul", "Ankara", "Izmir", "Bursa", "Antalya", "Adana", "Gaziantep", "Konya", "Mersin", "Eskisehir", "Denizli", "Samsun", "Diyarbakir", "Kayseri", "Sivas", "Trabzon", "Urfa", "Malatya", "Erzurum", "Tekirdag"],
+        "RU": ["Moscow", "Saint Petersburg", "Novosibirsk", "Yekaterinburg", "Nizhny Novgorod", "Kazan", "Chelyabinsk", "Omsk", "Samara", "Rostov-on-Don", "Ufa", "Krasnoyarsk", "Voronezh", "Volgograd", "Krasnodar", "Saratov", "Tyumen", "Tolyatti", "Izhevsk", "Barnaul"],
+    }
+    
+    if country and country in cities_by_country:
+        return random.choice(cities_by_country[country])
+    
+    # Return random city from all cities if no country specified
+    all_cities = []
+    for cities in cities_by_country.values():
+        all_cities.extend(cities)
+    return random.choice(all_cities)
 
-def generate_zipcode(country_rules=True, zip_from=10000, zip_to=99999, length=5):
-    return str(random.randint(zip_from, zip_to)).zfill(length)
+def generate_zipcode(country=None, zip_from=10000, zip_to=99999):
+    """Generate zipcode based on from/to range"""
+    # Convert to integers in case they come as strings
+    zip_from = int(zip_from) if zip_from else 10000
+    zip_to = int(zip_to) if zip_to else 99999
+    
+    # Handle case where from > to by swapping
+    if zip_from > zip_to:
+        zip_from, zip_to = zip_to, zip_from
+    
+    # Generate random zipcode within range
+    zip_code = random.randint(zip_from, zip_to)
+    return str(zip_code)
 
 def generate_street():
     return f"{random.randint(100, 9999)} {random.choice(US_STREETS)}"

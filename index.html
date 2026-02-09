@@ -137,6 +137,7 @@
             flex-direction: column;
             background: #1e1e2e;
             min-height: 400px;
+            position: relative;
         }
         .results-header {
             padding: 16px 20px;
@@ -241,6 +242,11 @@
         .config-section {
             margin-bottom: 20px;
         }
+        .config-section:not(:last-child) {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #2a2a3a;
+        }
         .config-label {
             display: block;
             font-size: 11px;
@@ -267,7 +273,18 @@
         .config-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 16px;
+        }
+        .config-row > div {
+            display: flex;
+            flex-direction: column;
+        }
+        .config-row .config-label {
+            margin-bottom: 8px;
+        }
+        .config-row input,
+        .config-row select {
+            flex: 1;
         }
         .config-select {
             width: 100%;
@@ -310,29 +327,87 @@
         }
         .checkbox-item span { font-size: 12px; color: #ccc; }
         
-        /* Radio Group */
-        .radio-group {
-            display: flex;
-            gap: 8px;
-        }
-        .radio-item {
+        /* Single Checkbox Style */
+        .checkbox-single {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 12px;
+            gap: 10px;
+            padding: 12px 14px;
             background: #252536;
             border-radius: 8px;
             cursor: pointer;
             border: 1px solid #333;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+        .checkbox-single:hover {
+            border-color: #6366f1;
+            background: #2a2a42;
+        }
+        .checkbox-single input[type="checkbox"] {
+            display: none;
+        }
+        .checkbox-mark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #555;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .checkbox-mark::after {
+            content: '✓';
+            color: white;
             font-size: 12px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s;
+        }
+        .checkbox-single input:checked + .checkbox-mark {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-color: #6366f1;
+        }
+        .checkbox-single input:checked + .checkbox-mark::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .checkbox-text {
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+        
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            gap: 16px;
+        }
+        .radio-spaced {
+            gap: 20px;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: #252536;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid #333;
+            font-size: 13px;
             color: #ccc;
             transition: all 0.2s;
+            min-width: 60px;
+            justify-content: center;
         }
         .radio-item:hover { border-color: #444; }
         .radio-item.active {
-            background: #6366f1;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             border-color: #6366f1;
             color: #fff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
         }
         .radio-item input {
             width: 14px;
@@ -343,7 +418,11 @@
         
         /* Generate Button */
         .generate-btn {
-            width: 100%;
+            width: calc(100% - 32px);
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
             padding: 14px;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
@@ -353,7 +432,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 16px;
         }
         .generate-btn:hover:not(:disabled) {
             transform: translateY(-2px);
@@ -362,6 +440,15 @@
         .generate-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+        .btn-icon {
+            margin-right: 8px;
+        }
+        
+        /* Config Panel - Fixed Generate Button */
+        .config-panel {
+            position: relative;
+            padding-bottom: 80px;
         }
         
         /* Empty State */
@@ -405,6 +492,81 @@
         ::-webkit-scrollbar-track { background: #1a1a28; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .result-item {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        .result-item:nth-child(1) { animation-delay: 0.05s; }
+        .result-item:nth-child(2) { animation-delay: 0.1s; }
+        .result-item:nth-child(3) { animation-delay: 0.15s; }
+        .result-item:nth-child(4) { animation-delay: 0.2s; }
+        .result-item:nth-child(5) { animation-delay: 0.25s; }
+        .result-item:nth-child(6) { animation-delay: 0.3s; }
+        .result-item:nth-child(7) { animation-delay: 0.35s; }
+        .result-item:nth-child(8) { animation-delay: 0.4s; }
+        .result-item:nth-child(9) { animation-delay: 0.45s; }
+        .result-item:nth-child(10) { animation-delay: 0.5s; }
+        .result-item:nth-child(n+11) { animation-delay: 0.55s; }
+        
+        .generate-btn:active:not(:disabled) {
+            animation: pulse 0.2s ease;
+        }
+        
+        /* Fixed Generate Button */
+        .fixed-generate-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fixed-generate-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+        .fixed-generate-btn:active {
+            transform: scale(0.95);
+        }
+        .fixed-generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Loading skeleton */
+        .loading {
+            background: linear-gradient(90deg, #252536 25%, #2a2a42 50%, #252536 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
     </style>
 </head>
 <body>
@@ -519,7 +681,23 @@
                 const res = await fetch('/api/types/'+typeId);
                 const config = await res.json();
                 typeConfigs[typeId] = config;
-                configs[typeId] = { count: 5 };
+                
+                // Initialize configs with count and default option values
+                configs[typeId] = { count: 10 };
+                
+                // Set default values for selects and radios from config
+                if (config.options) {
+                    config.options.forEach(opt => {
+                        if (opt.type === 'select' && opt.default) {
+                            configs[typeId][opt.key] = opt.default;
+                        } else if (opt.type === 'radio' && opt.default) {
+                            configs[typeId][opt.key] = opt.default;
+                        } else if (opt.type === 'checkbox' && opt.default) {
+                            configs[typeId][opt.key] = opt.default;
+                        }
+                    });
+                }
+                
                 renderConfig(config);
                 generate();
             } catch (e) {
@@ -534,57 +712,119 @@
             let html = `<div class="config-title">${config.icon} ${config.name}</div>`;
             
             // Count
-            html += `<div class="config-section"><label class="config-label">Count</label><input type="number" class="config-input" id="cfgCount" value="5" min="1" max="1000"></div>`;
+            html += `<div class="config-section"><label class="config-label">Count</label><input type="number" class="config-input" id="cfgCount" value="10" min="1" max="1000"></div>`;
             
-            // Options
-            if (config.options && config.options.length) {
+            // Prefix/Suffix for supported types
+            if (config.supports_prefix_suffix) {
+                html += '<div class="config-row">';
+                html += `<div><label class="config-label">Prefix</label><input type="text" class="config-input" id="cfgPrefix" placeholder="e.g., ID_" maxlength="8"></div>`;
+                html += `<div><label class="config-label">Suffix</label><input type="text" class="config-input" id="cfgSuffix" placeholder="e.g., _test" maxlength="12"></div>`;
+                html += '</div>';
+            }
+            
+            // Options - Separate checkboxes into individual items
+            const checkboxOptions = config.options?.filter(o => o.type === 'checkbox') || [];
+            const otherOptions = config.options?.filter(o => o.type !== 'checkbox') || [];
+            
+            if (checkboxOptions.length > 0) {
                 html += '<div class="config-section">';
-                config.options.forEach(opt => {
-                    if (opt.type === 'checkbox') {
-                        html += `<label class="config-label">${opt.label}</label><div class="checkbox-group">`;
+                checkboxOptions.forEach(opt => {
+                    html += `<label class="checkbox-single">
+                        <input type="checkbox" id="opt_${opt.key}" ${opt.default ? 'checked' : ''}>
+                        <span class="checkbox-mark"></span>
+                        <span class="checkbox-text">${opt.label}</span>
+                    </label>`;
+                });
+                html += '</div>';
+            }
+            
+            // Username specific - add spacing between prefix and style
+            if (otherOptions.length > 0) {
+                otherOptions.forEach((opt, idx) => {
+                    if (idx > 0 && opt.type !== 'radio') {
+                        html += '<div style="margin-top: 16px;"></div>';
+                    }
+                    html += '<div class="config-section">';
+                    if (opt.type === 'radio') {
+                        html += `<label class="config-label">${opt.label}</label><div class="radio-group radio-spaced">`;
                         opt.values.forEach(v => {
-                            html += `<label class="checkbox-item"><input type="checkbox" id="opt_${v[0]}" ${v[2]!==false?'checked':''}><span>${v[1]}</span></label>`;
-                        });
-                        html += '</div>';
-                    } else if (opt.type === 'radio') {
-                        html += `<label class="config-label">${opt.label}</label><div class="radio-group">`;
-                        opt.values.forEach(v => {
-                            html += `<label class="radio-item ${v[2]?'active':''}"><input type="radio" name="${opt.key}" value="${v[0]}" ${v[2]?'checked':''}><span>${v[1]}</span></label>`;
+                            const isDefault = v[0] === opt.default;
+                            html += `<label class="radio-item ${isDefault ? 'active' : ''}" onclick="handleRadioClick(this, '${opt.key}', '${v[0]}')">
+                                <input type="radio" name="opt_${opt.key}" value="${v[0]}" ${isDefault ? 'checked' : ''}>
+                                <span>${v[1]}</span>
+                            </label>`;
                         });
                         html += '</div>';
                     } else if (opt.type === 'select') {
                         html += `<label class="config-label">${opt.label}</label><select class="config-select" id="opt_${opt.key}">`;
                         opt.values.forEach(v => {
-                            html += `<option value="${v[0]}" ${v[2]?'selected':''}>${v[1]}</option>`;
+                            html += `<option value="${v[0]}" ${v[0] === opt.default ? 'selected' : ''}>${v[1]}</option>`;
                         });
                         html += '</select>';
+                    } else if (opt.type === 'number') {
+                        html += `<label class="config-label">${opt.label}</label>
+                            <input type="number" class="config-input" id="opt_${opt.key}" 
+                            value="${opt.default || 0}" min="${opt.min || 0}" max="${opt.max || 1000}">`;
                     } else {
-                        html += `<label class="config-label">${opt.label}</label><input type="text" class="config-input" id="opt_${opt.key}" placeholder="${opt.placeholder||''}">`;
+                        html += `<label class="config-label">${opt.label}</label>
+                            <input type="text" class="config-input" id="opt_${opt.key}" placeholder="${opt.placeholder || ''}">`;
                     }
+                    html += '</div>';
                 });
-                html += '</div>';
             }
             
-            html += `<button class="generate-btn" id="genBtn" onclick="generate()">Generate</button>`;
+            html += `<button class="generate-btn" id="genBtn" onclick="generate()">
+                <span class="btn-icon">⚡</span> Generate
+            </button>`;
             container.innerHTML = html;
             
             // Event listeners
             document.getElementById('cfgCount').addEventListener('input', (e) => {
-                configs[selectedType].count = parseInt(e.target.value) || 5;
+                configs[selectedType].count = parseInt(e.target.value) || 10;
             });
             
+            // Prefix/Suffix listeners
+            const prefixEl = document.getElementById('cfgPrefix');
+            const suffixEl = document.getElementById('cfgSuffix');
+            if (prefixEl) {
+                prefixEl.addEventListener('input', (e) => {
+                    configs[selectedType].prefix = e.target.value;
+                    generate();
+                });
+            }
+            if (suffixEl) {
+                suffixEl.addEventListener('input', (e) => {
+                    configs[selectedType].suffix = e.target.value;
+                    generate();
+                });
+            }
+            
+            // All options listeners
             if (config.options) {
                 config.options.forEach(opt => {
-                    const el = document.getElementById('opt_'+(opt.key || opt.values?.[0]?.[0]));
+                    const el = document.getElementById('opt_' + opt.key);
                     if (el) {
-                        el.addEventListener('change', () => {
-                            if (opt.type === 'checkbox') {
-                                configs[selectedType][opt.key] = el.checked;
-                            } else {
+                        if (opt.type === 'radio') {
+                            el.addEventListener('change', (e) => {
+                                // Update all radio buttons in this group
+                                const group = el.parentElement;
+                                group.querySelectorAll('input[type="radio"]').forEach(radio => {
+                                    radio.parentElement.classList.toggle('active', radio.checked);
+                                });
                                 configs[selectedType][opt.key] = el.value;
-                            }
-                            generate();
-                        });
+                                generate();
+                            });
+                        } else if (opt.type === 'checkbox') {
+                            el.addEventListener('change', () => {
+                                configs[selectedType][opt.key] = el.checked;
+                                generate();
+                            });
+                        } else {
+                            el.addEventListener('change', () => {
+                                configs[selectedType][opt.key] = el.value;
+                                generate();
+                            });
+                        }
                     }
                 });
             }
@@ -592,7 +832,9 @@
         
         async function generate() {
             const btn = document.getElementById('genBtn');
+            const fixedBtn = document.getElementById('fixedGenBtn');
             if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
+            if (fixedBtn) { fixedBtn.disabled = true; }
             
             try {
                 const body = { type: selectedType, count: configs[selectedType]?.count || 5 };
@@ -617,6 +859,7 @@
             }
             
             if (btn) { btn.disabled = false; btn.textContent = 'Generate'; }
+            if (fixedBtn) { fixedBtn.disabled = false; }
         }
         
         function renderResults(msg) {
@@ -666,6 +909,31 @@
             t.textContent = msg;
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 2000);
+        }
+        
+        function updateRadioState(clickedItem) {
+            // Remove active class from all siblings in the same group
+            const group = clickedItem.parentElement;
+            group.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // Add active class to clicked item
+            clickedItem.classList.add('active');
+        }
+        
+        function handleRadioClick(clickedItem, optKey, value) {
+            // Update visual state
+            const group = clickedItem.parentElement;
+            group.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('active');
+                item.querySelector('input').checked = false;
+            });
+            clickedItem.classList.add('active');
+            clickedItem.querySelector('input').checked = true;
+            
+            // Update config and generate
+            configs[selectedType][optKey] = value;
+            generate();
         }
         
         init();
