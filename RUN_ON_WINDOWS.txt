@@ -1,0 +1,52 @@
+# Test Data Generator - Quick Start Guide for Windows (Command Prompt)
+
+## Prerequisites
+- Python 3.8 or higher installed
+- pip (comes with Python)
+
+## Step 1: Open Command Prompt
+1. Press `Win + R`
+2. Type `cmd`
+3. Press Enter
+
+## Step 2: Navigate to the Project Folder
+```cmd
+cd d:\test-data-generator-qa-tools
+```
+(Replace `d:\` with your actual drive letter)
+
+## Step 3: Install Dependencies
+```cmd
+pip install fastapi uvicorn
+```
+
+## Step 4: Start the Server
+```cmd
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+You should see:
+```
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+```
+
+## Step 5: Open the App
+Open your web browser and go to:
+```
+http://127.0.0.1:8000
+```
+
+## To Stop the Server
+Press `Ctrl + C` in the Command Prompt window
+
+## Quick Commands Reference
+| Command | Description |
+|---------|-------------|
+| `python --version` | Check Python version |
+| `pip install fastapi uvicorn` | Install required packages |
+| `python -m uvicorn main:app --host 127.0.0.1 --port 8000` | Start the server |
+| `Ctrl + C` | Stop the server |
+
+## Troubleshooting
+- If `python` is not recognized, try `py` instead of `python`
+- If pip fails, try `python -m pip install fastapi uvicorn`
